@@ -1,0 +1,13 @@
+Rectangle 390 158 459 295
+Ellipse 381 80 468 157
+Rectangle 459 197 507 210
+Rectangle 496 142 509 197
+Rectangle 321 197 388 209
+Rectangle 322 210 335 249
+Rectangle 390 295 416 373
+Rectangle 435 295 458 372
+Rectangle 459 363 479 373
+Rectangle 366 365 390 372
+Ellipse 403 99 418 113
+Ellipse 434 101 447 114
+Ellipse 412 127 435 143
