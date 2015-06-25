@@ -10,29 +10,23 @@ namespace DesignPatternsV2._0
     class DrawCommand : ICommand
     {
         private readonly List<GraphShape> _shapeList;
-        private GraphShape.Shape _shape;
-        private Point _startPoint;
-        private Point _endPoint;
+        private GraphShape _shape;
 
-
-
-
-        public DrawCommand(List<GraphShape>shapeList, GraphShape.Shape shape, Point startPoint, Point endPoint)
+        public DrawCommand(List<GraphShape>shapeList, GraphShape shape)
         {
             _shapeList = shapeList;
             _shape = shape;
-            _startPoint = startPoint;
-            _endPoint = endPoint;
+
         }
 
         public void Do()
         {
-            _shapeList.Add(new GraphShape(_shape,_startPoint.X,_startPoint.Y,_endPoint.X,_endPoint.Y));
+            _shapeList.Add(_shape);
         }
 
         public void Undo()
         {
-            
+            _shapeList.Remove(_shape);
         }
     }
 }
