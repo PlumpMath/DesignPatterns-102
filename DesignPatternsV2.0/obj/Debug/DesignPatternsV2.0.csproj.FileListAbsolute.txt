@@ -43,3 +43,12 @@ C:\Users\Toby\Dropbox\School\Design Patterns\Exercises\2\DesignPatternsV2.1\Desi
 C:\Users\Toby\Dropbox\School\Design Patterns\Exercises\2\DesignPatternsV2.1\DesignPatternsV2.0\obj\Debug\DesignPatternsV2._0.Form1.resources
 C:\Users\Toby\Dropbox\School\Design Patterns\Exercises\2\DesignPatternsV2.1\DesignPatternsV2.0\obj\Debug\DesignPatternsV2._0.Properties.Resources.resources
 C:\Users\Toby\Dropbox\School\Design Patterns\Exercises\2\DesignPatternsV2.1\DesignPatternsV2.0\obj\Debug\DesignPatternsV2.0.csproj.GenerateResource.Cache
+E:\Toby Dropbox\Dropbox\School\Design Patterns\Exercises\2\DesignPatternsV2.1\DesignPatternsV2.0\bin\Debug\DesignPatternsV2.0.exe.config
+E:\Toby Dropbox\Dropbox\School\Design Patterns\Exercises\2\DesignPatternsV2.1\DesignPatternsV2.0\obj\Debug\DesignPatternsV2.0.exe
+E:\Toby Dropbox\Dropbox\School\Design Patterns\Exercises\2\DesignPatternsV2.1\DesignPatternsV2.0\obj\Debug\DesignPatternsV2.0.pdb
+E:\Toby Dropbox\Dropbox\School\Design Patterns\Exercises\2\DesignPatternsV2.1\DesignPatternsV2.0\bin\Debug\DesignPatternsV2.0.exe
+E:\Toby Dropbox\Dropbox\School\Design Patterns\Exercises\2\DesignPatternsV2.1\DesignPatternsV2.0\bin\Debug\DesignPatternsV2.0.pdb
+E:\Toby Dropbox\Dropbox\School\Design Patterns\Exercises\2\DesignPatternsV2.1\DesignPatternsV2.0\obj\Debug\DesignPatternsV2.0.csprojResolveAssemblyReference.cache
+E:\Toby Dropbox\Dropbox\School\Design Patterns\Exercises\2\DesignPatternsV2.1\DesignPatternsV2.0\obj\Debug\DesignPatternsV2._0.Form1.resources
+E:\Toby Dropbox\Dropbox\School\Design Patterns\Exercises\2\DesignPatternsV2.1\DesignPatternsV2.0\obj\Debug\DesignPatternsV2._0.Properties.Resources.resources
+E:\Toby Dropbox\Dropbox\School\Design Patterns\Exercises\2\DesignPatternsV2.1\DesignPatternsV2.0\obj\Debug\DesignPatternsV2.0.csproj.GenerateResource.Cache

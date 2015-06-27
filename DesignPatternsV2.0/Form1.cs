@@ -73,7 +73,7 @@ namespace DesignPatternsV2._0
                     break;
                 case Mode.Rectangle:
                     if (_startLocation.X != e.X && _startLocation.Y != e.Y)
-                    {
+                    {  
                         ShapeList.Add(new GraphShape(GraphShape.Shape.Rectangle, _startLocation.X, _startLocation.Y, e.X, e.Y));
                         UndoneList.Clear();
                     }
