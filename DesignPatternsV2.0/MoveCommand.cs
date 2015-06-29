@@ -9,24 +9,25 @@ namespace DesignPatternsV2._0
 {
     class MoveCommand
     {
-
-        public GraphShape Shape;
-        public Point StartShapePoint;
-        public Point EndShapePoint;
-        public Point StartMoveMousePoint;
-
+        private readonly List<GraphShape> _shapeList;
         private GraphShape _shape;
+        private Point _startShapePoint;
+        private Point _endShapePoint;
+        private Point _startMoveMousePoint;
 
-        public MoveCommand(GraphShape shape)
+
+        public MoveCommand(List<GraphShape>shapeList, GraphShape shape, Point startShapePoint, Point endShapePoint, Point startMoveMousePoint)
         {
-            
+            _shapeList = shapeList;
             _shape = shape;
-
+            _startShapePoint = startShapePoint;
+            _endShapePoint = endShapePoint;
+            _startMoveMousePoint = startMoveMousePoint;
         }
 
         public void Do()
         {
-            
+            _shape.StartPoint = _endShapePoint;
         }
 
         public void Undo()
