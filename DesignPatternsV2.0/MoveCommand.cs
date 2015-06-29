@@ -7,32 +7,41 @@ using System.Threading.Tasks;
 
 namespace DesignPatternsV2._0
 {
-    class MoveCommand
+    class MoveCommand : ICommand
     {
         private readonly List<GraphShape> _shapeList;
         private GraphShape _shape;
-        private Point _startShapePoint;
-        private Point _endShapePoint;
+        private GraphShape _shapeBackup;
+        private Point _startMousePoint;
+        private Point _endMousePoint;
         private Point _startMoveMousePoint;
 
 
-        public MoveCommand(List<GraphShape>shapeList, GraphShape shape, Point startShapePoint, Point endShapePoint, Point startMoveMousePoint)
+        public MoveCommand(List<GraphShape>shapeList, GraphShape shape, Point startMousePoint, Point endMousePoint)
         {
             _shapeList = shapeList;
             _shape = shape;
-            _startShapePoint = startShapePoint;
-            _endShapePoint = endShapePoint;
-            _startMoveMousePoint = startMoveMousePoint;
+            _shapeBackup = _shape;
+            _startMousePoint = startMousePoint;
+            _endMousePoint = endMousePoint;
         }
 
         public void Do()
         {
-            _shape.StartPoint = _endShapePoint;
+
+            _shape.StartPoint = new Point(_shape.StartPoint.X + _endMousePoint.X - _startMousePoint.X,
+                        _shape.StartPoint.Y + _endMousePoint.Y - _startMousePoint.Y);
+            _shape.EndPoint = new Point(_shape.EndPoint.X + _endMousePoint.X - _startMousePoint.X,
+                _shape.EndPoint.Y + _endMousePoint.Y - _startMousePoint.Y);
+
         }
 
         public void Undo()
         {
-            
+            _shape.StartPoint = new Point(_shape.StartPoint.X - _endMousePoint.X + _startMousePoint.X,
+                        _shape.StartPoint.Y - _endMousePoint.Y + _startMousePoint.Y);
+            _shape.EndPoint = new Point(_shape.EndPoint.X - _endMousePoint.X + _startMousePoint.X,
+                _shape.EndPoint.Y - _endMousePoint.Y + _startMousePoint.Y);
         }
     }
 }
