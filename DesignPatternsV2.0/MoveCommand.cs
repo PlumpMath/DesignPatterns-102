@@ -11,7 +11,6 @@ namespace DesignPatternsV2._0
     {
         private readonly List<GraphShape> _shapeList;
         private GraphShape _shape;
-        private GraphShape _shapeBackup;
         private Point _startMousePoint;
         private Point _endMousePoint;
         private Point _startMoveMousePoint;
@@ -21,7 +20,6 @@ namespace DesignPatternsV2._0
         {
             _shapeList = shapeList;
             _shape = shape;
-            _shapeBackup = _shape;
             _startMousePoint = startMousePoint;
             _endMousePoint = endMousePoint;
         }
