@@ -8,10 +8,10 @@ namespace DesignPatternsV2._0
 {
     class RemoveCommand : ICommand
     {
-        private readonly List<GraphShape> _shapeList;
-        private readonly GraphShape _shape;
+        private readonly List<Draw> _shapeList;
+        private readonly Draw _shape;
 
-        public RemoveCommand(List<GraphShape> shapeList, GraphShape shape)
+        public RemoveCommand(List<Draw> shapeList, Draw shape)
         {
             _shapeList = shapeList;
             _shape = shape;

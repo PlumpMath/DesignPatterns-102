@@ -9,7 +9,7 @@ namespace DesignPatternsV2._0
 {
     public class MoveInfo
     {
-        public GraphShape Shape;
+        public Draw Shape;
         public Point StartShapePoint;
         public Point EndShapePoint;
         public Point StartMoveMousePoint;

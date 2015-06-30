@@ -9,14 +9,14 @@ namespace DesignPatternsV2._0
 {
     class MoveCommand : ICommand
     {
-        private readonly List<GraphShape> _shapeList;
-        private GraphShape _shape;
+        private readonly List<Draw> _shapeList;
+        private Draw _shape;
         private Point _startMousePoint;
         private Point _endMousePoint;
         private Point _startMoveMousePoint;
 
 
-        public MoveCommand(List<GraphShape>shapeList, GraphShape shape, Point startMousePoint, Point endMousePoint)
+        public MoveCommand(List<Draw>shapeList, Draw shape, Point startMousePoint, Point endMousePoint)
         {
             _shapeList = shapeList;
             _shape = shape;

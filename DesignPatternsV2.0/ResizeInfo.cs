@@ -9,7 +9,7 @@ namespace DesignPatternsV2._0
 {
     public class ResizeInfo
     {
-        public GraphShape Shape;
+        public Draw Shape;
         public Point StartResizePoint;
         public int HandleNumber;
     }

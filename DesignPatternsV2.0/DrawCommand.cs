@@ -9,14 +9,13 @@ namespace DesignPatternsV2._0
 {
     class DrawCommand : ICommand
     {
-        private readonly List<GraphShape> _shapeList;
-        private GraphShape _shape;
+        private readonly List<Draw> _shapeList;
+        private Draw _shape;
 
-        public DrawCommand(List<GraphShape>shapeList, GraphShape shape)
+        public DrawCommand(List<Draw>shapeList, Draw shape)
         {
             _shapeList = shapeList;
             _shape = shape;
-
         }
 
         public void Do()

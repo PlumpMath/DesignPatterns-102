@@ -9,10 +9,10 @@ namespace DesignPatternsV2._0
 {
     class ResizeCommand : ICommand
     {
-        private readonly GraphShape _shape;
+        private readonly Draw _shape;
         private readonly Point _startLocation;
         private readonly Point _endLocation;
-        public ResizeCommand(GraphShape shape, Point startLocation, Point endLocation)
+        public ResizeCommand(Draw shape, Point startLocation, Point endLocation)
         {
             _shape = shape;
             _startLocation = startLocation;
