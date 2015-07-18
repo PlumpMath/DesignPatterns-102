@@ -31,5 +31,9 @@ namespace DesignPatternsV2._0
                 EndPoint.Y = StartPoint.Y + y1 - y2;
             }
         }
+        public void Print()
+        {
+            Console.WriteLine("Draw Rectangle");
+        }
     }
 }

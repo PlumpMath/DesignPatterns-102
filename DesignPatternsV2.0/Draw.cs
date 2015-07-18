@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 
 namespace DesignPatternsV2._0
 {
@@ -13,6 +14,13 @@ namespace DesignPatternsV2._0
         public Point EndPoint;
         public Shape shape;
         public Point StartPoint;
+
+        public Draw()
+        {
+            
+        }
+
+
 
         public Draw(int x1, int y1, int x2, int y2)
         {
@@ -36,6 +44,11 @@ namespace DesignPatternsV2._0
                 StartPoint.Y = y2;
                 EndPoint.Y = StartPoint.Y + y1 - y2;
             }
+        }
+
+        public void Print()
+        {
+            Console.WriteLine(@"Draw");
         }
 
         //public Draw(Shape shape, Point p1, Point p2)
