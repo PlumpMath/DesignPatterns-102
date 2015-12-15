@@ -3,16 +3,14 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
-using System.Linq;
 using System.Windows.Forms;
 
 namespace DesignPatternsV2._0
 {
     public sealed partial class Form1 : Form
     {
-        public enum Mode
+        private enum Mode
         {
-            None,
             Ellipse,
             Rectangle,
             Controller
@@ -23,9 +21,16 @@ namespace DesignPatternsV2._0
         private Point _startLocation;
         private MoveInfo _moving;
         private ResizeInfo _resizing;
-        private GraphShape _selectedShape;
-        public List<GraphShape> ShapeList;
-        public List<GraphShape> UndoneList;
+        private Draw _selected;
+
+        private readonly Stack<ICommand> _commandStack = new Stack<ICommand>();
+        private readonly Stack<ICommand> _undoneCommands = new Stack<ICommand>();
+
+        private Point _mouseDownLocation;
+
+        private readonly List<Draw> _shapeList;
+        private readonly List<Draw> _compositeList = new List<Draw>(); 
+        private readonly List<Draw> _undoneList;
 
         public Form1()
         {
@@ -36,16 +41,12 @@ namespace DesignPatternsV2._0
             MouseDown += Form1_MouseDown;
             MouseUp += Form1_MouseUp;
 
-            ShapeList = new List<GraphShape>
-            {
-                new GraphShape(GraphShape.Shape.Rectangle, 200, 120, 300, 300),
-                new GraphShape(GraphShape.Shape.Ellipse, 350, 250, 420, 140)
-            };
+            _shapeList = new List<Draw>();
 
             KeyPreview = true;
             KeyDown += Form1_KeyDown;
 
-            UndoneList = new List<GraphShape>();
+            _undoneList = new List<Draw>();
 
             InitializeComponent();
             UpdateControls();
@@ -55,77 +56,158 @@ namespace DesignPatternsV2._0
 
         private void Form1_MouseUp(object sender, MouseEventArgs e)
         {
-            if (_moving != null)
+            if (e.Button == MouseButtons.Left)
             {
-                Capture = false;
-                _moving = null;
-            }
-            if (_resizing != null)
+                if (_moving != null)
+                {
+                    MoveCommand moveCommand = new MoveCommand(_shapeList, _moving.Shape, _moving.StartMoveMousePoint,
+                        e.Location);
+                    //moveCommand.Do();
+                    _commandStack.Push(moveCommand);
+                    _undoneCommands.Clear();
+                    UpdateControls();
+                    Invalidate();
+                    Capture = false;
+                    _moving = null;
+                }
+                if (_resizing != null)
+                {
+                    ResizeCommand resizeCommand = new ResizeCommand(_resizing.Shape, _mouseDownLocation, e.Location);
+                    //moveCommand.Do();                    
+                    _commandStack.Push(resizeCommand);
+                    _undoneCommands.Clear();
+                    UpdateControls();
+                    Capture = false;
+                    _resizing = null;
+                }
+
+                switch (_activemode)
+                {
+                    case Mode.Controller:
+                        RefreshShapeSelection(e.Location);
+                        break;
+                    case Mode.Rectangle:
+                        if (_startLocation.X != e.X && _startLocation.Y != e.Y)
+                        {
+                            DrawCommand rectangleCommand = new DrawCommand(_shapeList,
+                                new DrawRectangle(_startLocation.X, _startLocation.Y, e.X, e.Y));
+                            rectangleCommand.Do();
+                            _commandStack.Push(rectangleCommand);
+                            _undoneCommands.Clear();
+                        }
+                        
+                        UpdateControls();
+                        Invalidate();
+                        break;
+                    case Mode.Ellipse:
+                        if (_startLocation.X != e.X && _startLocation.Y != e.Y)
+                        {
+                            DrawCommand ellipseCommand = new DrawCommand(_shapeList,
+                                new DrawEllipse(_startLocation.X, _startLocation.Y, e.X, e.Y));
+                            ellipseCommand.Do();
+                            _commandStack.Push(ellipseCommand);
+                            _undoneCommands.Clear();
+                        }
+                        
+                        UpdateControls();
+                        Invalidate();
+                        break;
+                } //end mode switch
+            } //end leftclick
+            else if (e.Button == MouseButtons.Right)
             {
-                Capture = false;
-                _resizing = null;
+                if (_activemode == Mode.Controller)
+                {
+                    SetupRightClickmenu();
+                }
             }
 
-            switch (_activemode)
+        }
+
+        private void SetupRightClickmenu()
+        {
+            ContextMenu cm = new ContextMenu();
+            MenuItem toFront = new MenuItem("Move item to top");
+            MenuItem toBack = new MenuItem("Move item to bottom");
+            MenuItem oneUp = new MenuItem("Move item one layer up");
+            MenuItem oneDown = new MenuItem("Move item one layer down");
+
+            cm.MenuItems.Add(toFront);
+            cm.MenuItems.Add(toBack);
+
+            toFront.Click += toFront_click;
+            toBack.Click += toBack_click;
+            oneUp.Click += oneUp_click;
+            oneDown.Click += oneDown_click;
+
+            cm.MenuItems.Add(toFront);
+            cm.MenuItems.Add(toBack);
+            cm.Show(this,_mouseDownLocation);
+        }
+
+        void toFront_click(object sender, EventArgs e)
+        {
+            //MessageBox.Show(@"move object to front");
+            if (_selected != null)
             {
-                case Mode.Controller:
-                    RefreshShapeSelection(e.Location);
-                    break;
-                case Mode.Rectangle:
-                    if (_startLocation.X != e.X && _startLocation.Y != e.Y)
-                    {  
-                        ShapeList.Add(new GraphShape(GraphShape.Shape.Rectangle, _startLocation.X, _startLocation.Y, e.X, e.Y));
-                        UndoneList.Clear();
-                    }
-                    UpdateControls();
-                    Invalidate();
-                    break;
-                case Mode.Ellipse:
-                    if (_startLocation.X != e.X && _startLocation.Y != e.Y)
-                    {
-                        ShapeList.Add(new GraphShape(GraphShape.Shape.Ellipse, _startLocation.X, _startLocation.Y, e.X, e.Y));
-                        UndoneList.Clear();
-                    }
-                    UpdateControls();
-                    Invalidate();
-                    break;
+                //int index = _shapeList.IndexOf(_selected);
+                //Draw tmp = _shapeList[index];//get selected shape
+                //_shapeList.Insert(0, tmp);
+                //_shapeList.RemoveAt(index);
+                
             }
+        }
+
+        void toBack_click(object sender, EventArgs e)
+        {
+            MessageBox.Show(@"move object to back");
+        }
+
+        void oneUp_click(object sender, EventArgs e)
+        {
+            MessageBox.Show(@"move object to back");
+        }
+
+        void oneDown_click(object sender, EventArgs e)
+        {
+            MessageBox.Show(@"move object to back");
         }
 
         private void Form1_MouseDown(object sender, MouseEventArgs e)
         {
             if (_activemode == Mode.Controller)
             {
-
-                if (_selectedShape != null && _moving == null)
+                _mouseDownLocation = e.Location;
+                if (_selected != null && _moving == null)
                 {
                     for (int i = 1; i <= 4; i++)
                     {
-                        if (GetHandleRectangle(i, _selectedShape).Contains(e.Location))
+                        if (GetHandleRectangle(i, _selected).Contains(e.Location))
                         {
                             _resizing = new ResizeInfo
                             {
-                                Shape = _selectedShape,
-                                StartResizePoint = _selectedShape.StartPoint,
+                                Shape = _selected,
+                                StartResizePoint = _selected.StartPoint,
                                 HandleNumber = i
                             };
                             break;
                         }
                         Capture = true;
+                        
                         _moving = new MoveInfo
                         {
-                            Shape = _selectedShape,
-                            StartShapePoint = _selectedShape.StartPoint,
-                            EndShapePoint = _selectedShape.EndPoint,
+                            Shape = _selected,
+                            StartShapePoint = _selected.StartPoint,
+                            EndShapePoint = _selected.EndPoint,
                             StartMoveMousePoint = e.Location
                         };
                     }
                     //Capture = true;
                     //_moving = new MoveInfo
                     //{
-                    //    Shape = _selectedShape,
-                    //    StartShapePoint = _selectedShape.StartPoint,
-                    //    EndShapePoint = _selectedShape.EndPoint,
+                    //    Shape = _selected,
+                    //    StartShapePoint = _selected.StartPoint,
+                    //    EndShapePoint = _selected.EndPoint,
                     //    StartMoveMousePoint = e.Location
                     //};
                 }
@@ -146,26 +228,30 @@ namespace DesignPatternsV2._0
         {
             e.Graphics.InterpolationMode = InterpolationMode.High;
             e.Graphics.SmoothingMode = SmoothingMode.HighQuality;
-            foreach (var shape in ShapeList)
+            foreach (var shape in _shapeList)
             {
                 Color color;
-                if (shape == _selectedShape)
+                if (shape == _selected)
                 {
                     color = Color.Red;
-                    drawResizeHandles(_selectedShape, e.Graphics);
+                    drawResizeHandles(_selected, e.Graphics);
                 }
                 else
                 {
                     color = Color.Black;
                 }
                 var pen = new Pen(color, 1);
-                if (shape.shape == GraphShape.Shape.Rectangle)
+                if (shape is DrawRectangle)
                 {
                     e.Graphics.DrawRectangle(pen, GetNormalizedRectangle(shape.StartPoint, shape.EndPoint));
                 }
-                else if (shape.shape == GraphShape.Shape.Ellipse)
+                else if (shape is DrawEllipse)
                 {
                     e.Graphics.DrawEllipse(pen, GetNormalizedRectangle(shape.StartPoint, shape.EndPoint));
+                }
+                else if (shape is Composite)
+                {
+                    //recursive for children
                 }
             }
         }
@@ -188,7 +274,9 @@ namespace DesignPatternsV2._0
                     _moving.Shape.EndPoint = new Point(_moving.EndShapePoint.X + e.X - _moving.StartMoveMousePoint.X,
                         _moving.EndShapePoint.Y + e.Y - _moving.StartMoveMousePoint.Y);
                 }
-                RefreshShapeSelection(e.Location);
+                //RefreshShapeSelection(e.Location);
+                SetCursor(e.Location);
+                Invalidate();
             }
             else if (_activemode == Mode.Rectangle)
             {
@@ -203,38 +291,41 @@ namespace DesignPatternsV2._0
 
         private void RefreshShapeSelection(Point point)
         {
-            var selectedShape = FindShapeByPoint(ShapeList, point);
-            if (selectedShape != _selectedShape)
+            var selectedShape = FindShapeByPoint(_shapeList, point);
+            if (selectedShape != _selected)
             {
-                _selectedShape = selectedShape;
+                _selected = selectedShape;
                 Invalidate();
             }
             if (_moving != null)
                 Invalidate();
-
-            if (_moving != null)
-            {
-                Cursor = Cursors.Hand;
-            }
-            else if (_selectedShape != null)
-            {
-                Cursor = Cursors.SizeAll;
-            }
-            else
-            {
-                Cursor = Cursors.Default;
-            }
-
+            
         }
 
-        public Rectangle GetHandleRectangle(int handleNumber, GraphShape shape)
+        private void SetCursor(Point point)
+        {
+            if (_selected != null)
+            {
+                if (_selected.GetNormalizedRectangle().Contains(point))
+                {
+                    Cursor = Cursors.SizeAll;
+                }
+                else
+                {
+                    Cursor = Cursors.Default;
+                }
+            }
+            
+        }
+
+        public Rectangle GetHandleRectangle(int handleNumber, Draw shape)
         {
             Point point = GetHandle(handleNumber, shape);
 
             return new Rectangle(point.X - 3, point.Y - 3, 7, 7);
         }
 
-        public Point GetHandle(int handleNumber, GraphShape shape)
+        public Point GetHandle(int handleNumber, Draw shape)
         {
             Point point = new Point();
 
@@ -258,7 +349,7 @@ namespace DesignPatternsV2._0
             return point;
         }
 
-        private void drawResizeHandles(GraphShape shape, Graphics e)
+        private void drawResizeHandles(Draw shape, Graphics e)
         {
             Point topLeft = new Point(shape.GetNormalizedRectangle().Left, shape.GetNormalizedRectangle().Top);
             Point topRight = new Point(shape.GetNormalizedRectangle().Right, shape.GetNormalizedRectangle().Top);
@@ -278,7 +369,7 @@ namespace DesignPatternsV2._0
             e.DrawRectangle(new Pen(Color.Red, 1), bottomRightRectangle);
         }
 
-        private static GraphShape FindShapeByPoint(List<GraphShape> shapes, Point p)
+        private static Draw FindShapeByPoint(List<Draw> shapes, Point p)
         {
             foreach (var shape in shapes)
             {
@@ -291,7 +382,7 @@ namespace DesignPatternsV2._0
             return null;
         }
 
-        public Rectangle GetNormalizedRectangle(Point p1, Point p2)
+        private static Rectangle GetNormalizedRectangle(Point p1, Point p2)
         {
             Rectangle normalizedRect = new Rectangle();
             if (p1.X < p2.X)
@@ -318,17 +409,20 @@ namespace DesignPatternsV2._0
             return normalizedRect;
         }
 
-        public void UpdateControls()
+        private void UpdateControls()
         {
-            button2.Enabled = UndoneList.Count >= 1;
+            button2.Enabled = _undoneCommands.Count >= 1;
 
-            button1.Enabled = ShapeList.Count >= 1;
+            button1.Enabled = _commandStack.Count >= 1;
         }
 
-        public void ClearAll()
+        private void ClearAll()
         {
-            ShapeList.Clear();
-            UndoneList.Clear();
+            _compositeList.Clear();
+            _commandStack.Clear();
+            _undoneCommands.Clear();
+            _shapeList.Clear();
+            _undoneList.Clear();
             UpdateControls();
             Invalidate();
         }
@@ -352,9 +446,14 @@ namespace DesignPatternsV2._0
         //Undo button clicked
         private void button1_Click(object sender, EventArgs e)
         {
-            GraphShape undoneShape = ShapeList[ShapeList.Count - 1];
-            UndoneList.Add(undoneShape);
-            ShapeList.RemoveAt(ShapeList.Count() - 1);
+            ICommand undoneCommand = _commandStack.Pop();
+            undoneCommand.Undo();
+            _undoneCommands.Push(undoneCommand);
+
+            _selected = null;
+            //Draw undoneShape = ShapeList[ShapeList.Count - 1];
+            //UndoneList.Add(undoneShape);
+            //ShapeList.RemoveAt(ShapeList.Count() - 1);
             Invalidate();
             UpdateControls();
         }
@@ -362,8 +461,12 @@ namespace DesignPatternsV2._0
         private void button2_Click(object sender, EventArgs e)
         {
 
-            ShapeList.Add(UndoneList[UndoneList.Count() - 1]);
-            UndoneList.RemoveAt(UndoneList.Count() - 1);
+            ICommand redoCommand = _undoneCommands.Pop();
+            redoCommand.Do();
+            _commandStack.Push(redoCommand);
+
+            //ShapeList.Add(UndoneList[UndoneList.Count() - 1]);
+            //UndoneList.RemoveAt(UndoneList.Count() - 1);
 
             Invalidate();
             UpdateControls();
@@ -390,7 +493,7 @@ namespace DesignPatternsV2._0
                 Console.WriteLine(@"Error is : " + er);
             }
             //file = new System.IO.StreamWriter(sfd.FileName);
-            foreach (GraphShape s in ShapeList)
+            foreach (Draw s in _shapeList)
             {
                 string writetofile = s.shape + " " + s.StartPoint.X + " " + s.StartPoint.Y + " " + s.EndPoint.X + " " + s.EndPoint.Y;
                 file.WriteLine(writetofile);
@@ -421,31 +524,35 @@ namespace DesignPatternsV2._0
                         string line;
                         while ((line = file.ReadLine()) != null)
                         {
-                            try
-                            {
+                            //try
+                            //{
                                 string[] data = line.Split(' ');
                                 if (((data[0])[0]).ToString() == "E")
                                 {
-                                    GraphShape shape = new GraphShape(GraphShape.Shape.Ellipse, (Int16.Parse(data[1])), (Int16.Parse(data[2])), (Int16.Parse(data[3])), (Int16.Parse(data[4])));
-                                    ShapeList.Add(shape);
+                                    Draw shape = new DrawEllipse((Int16.Parse(data[1])), (Int16.Parse(data[2])), (Int16.Parse(data[3])), (Int16.Parse(data[4])));
+                                    _compositeList.Add(shape);
+                                    
+                                    //shapeList.Add(composite);
                                 }
                                 else if (((data[0])[0]).ToString() == "R")
                                 {
-                                    GraphShape shape = new GraphShape(GraphShape.Shape.Rectangle, (Int16.Parse(data[1])), (Int16.Parse(data[2])), (Int16.Parse(data[3])), (Int16.Parse(data[4])));
-                                    ShapeList.Add(shape);
+                                    Draw shape = new DrawRectangle((Int16.Parse(data[1])), (Int16.Parse(data[2])), (Int16.Parse(data[3])), (Int16.Parse(data[4])));
+                                    _shapeList.Add(shape);
                                 }
                                 UpdateControls();
-                            }
-                            catch
-                            {
-                                MessageBox.Show(@"shit went terribly wrong");
-                                ShapeList.Clear();
-                                UndoneList.Clear();
-                                UpdateControls();
-                                Invalidate();
-                                break;
-                            }
+                                _selected = null;
+                            //}
+                            //catch
+                            //{
+                            //    MessageBox.Show(@"shit went terribly wrong");
+                            //    ClearAll();
+                            //    UpdateControls();
+                            //    Invalidate();
+                            //    break;
+                            //}
                         }
+                        Composite composite = new Composite(_compositeList, _shapeList);
+                        composite.AddToList();
                     }
                     break;
             }
@@ -455,11 +562,24 @@ namespace DesignPatternsV2._0
         {
             if (e.KeyData == Keys.Delete)
             {
-
-                ShapeList.Remove(_selectedShape);
+                RemoveCommand removeCommand = new RemoveCommand(_shapeList,_selected);
+                removeCommand.Do();
+                _commandStack.Push(removeCommand);
                 UpdateControls();
+                Invalidate();
             }
 
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            int counter = 0;
+            foreach (ICommand c in _undoneCommands)
+            {
+                Console.WriteLine(counter+c.GetType().ToString());
+                counter++;
+            }
+            
         }
     }
 }
